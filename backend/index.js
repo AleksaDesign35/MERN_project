@@ -2,22 +2,46 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
+// Models
+const Users = require('./models/userModel.js');
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
 
+app.post('/register', async (req, res, next) => {
+    try {
+        const user = await Users.findOne({ email: req.body.email });
+        console.log(user, 'user');
+        if (!user) {
+            const newUser = new Users(req.body);
+            console.log(newUser);
 
-app.post('/register', (req, res, next) => {
-    console.log(req.body, 'req.body');
-    console.log('POST evo me');
-    res.status(201).json({
-      status: 'success',
-      message: 'User created successfully',
-    })
-    res.status(404).json({
-      status: 'fail',
-      message: 'User not created',
-    })
+            try {
+                const saveNewUser = await newUser.save();
+                console.log(saveNewUser, 'saveNewUser');
+                return res.status(200).json({
+                    status: 'success',
+                    message: 'Korisnik uspjesno spremljen',
+                });
+            } catch (err) {
+                return res.status(500).json({
+                    status: 'error',
+                    message: 'Nije uspelo spremanje korisnika',
+                });
+            }
+        } else {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Korisnik vec postoji',
+            });
+        }
+    } catch (err) {
+        return res.status(500).json({
+            status: 'error',
+            message: 'Internal server error',
+        });
+    }
 });
 
 module.exports = app;
