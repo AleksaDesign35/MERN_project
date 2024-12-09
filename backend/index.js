@@ -79,4 +79,19 @@ app.post('/login', async (req, res, next) => {
     }
 });
 
+// * All other pages including 404
+app.all('*', (req, res, next) => {
+    next('22');
+    res.status(404).json({
+        status: 'fail',
+        message: `Ova stranica ${req.originalUrl} ne postoji`,
+    });
+});
+
+app.use((err, req, res, next) => {
+    console.log(err, 'error');
+    console.log('Ja sam global error handler');
+    res.send('Ja sam global error handler');
+});
+
 module.exports = app;
