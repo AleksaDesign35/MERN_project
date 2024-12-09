@@ -9,17 +9,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
 
+// * Register
+
 app.post('/register', async (req, res, next) => {
     try {
         const user = await Users.findOne({ email: req.body.email });
-        console.log(user, 'user');
+        //   console.log(user, 'user');
         if (!user) {
             const newUser = new Users(req.body);
-            console.log(newUser);
+            // console.log(newUser);
 
             try {
                 const saveNewUser = await newUser.save();
-                console.log(saveNewUser, 'saveNewUser');
+                //  console.log(saveNewUser, 'saveNewUser');
                 return res.status(200).json({
                     status: 'success',
                     message: 'Korisnik uspjesno spremljen',
@@ -34,6 +36,39 @@ app.post('/register', async (req, res, next) => {
             return res.status(400).json({
                 status: 'error',
                 message: 'Korisnik vec postoji',
+            });
+        }
+    } catch (err) {
+        return res.status(500).json({
+            status: 'error',
+            message: 'Internal server error',
+        });
+    }
+});
+
+// * Login
+app.post('/login', async (req, res, next) => {
+    try {
+        const user = await Users.findOne({ email: req.body.email });
+
+        console.log(user, 'user-post');
+
+        if (user) {
+            if (user.password !== req.body.password) {
+                return res.status(200).json({
+                    status: 'success',
+                    message: 'Uspjesno prijavljivanje',
+                });
+            } else {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Netacni podaci',
+                });
+            }
+        } else {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Korisnik ne postoji',
             });
         }
     } catch (err) {
