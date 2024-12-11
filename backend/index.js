@@ -4,6 +4,7 @@ const app = express();
 
 // Models
 const Users = require('./models/userModel.js');
+const errorController = require('./controllers/errorController.js');
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -12,6 +13,7 @@ app.use(cors());
 // * Register
 
 app.post('/register', async (req, res, next) => {
+    // new AppError('message', 404);
     try {
         const user = await Users.findOne({ email: req.body.email });
         //   console.log(user, 'user');
@@ -88,10 +90,7 @@ app.all('*', (req, res, next) => {
     });
 });
 
-app.use((err, req, res, next) => {
-    console.log(err, 'error');
-    console.log('Ja sam global error handler');
-    res.send('Ja sam global error handler');
-});
+//* Global error handler
+app.use(errorController);
 
 module.exports = app;
